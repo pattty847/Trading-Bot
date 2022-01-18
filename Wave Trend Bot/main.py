@@ -11,11 +11,11 @@ config_file.read('C:\\Users\\pattt\\Desktop\\exchanges.config')
 
 
 def startBot():
-    exchanges = ['gateio', 'binance', 'ftx']
+    exchanges = ['gateio', 'ftx', 'coinbasepro']
     coin = 'BTC'
-    currency = 'USDT'
+    currency = 'USD'
     pairs = [coin + '/' + currency]
-    timeframe = '1m'
+    timeframe = '5m'
     # 30% of account balance to be used / trade
     trade_ratio_to_balance = .3
 
@@ -29,8 +29,7 @@ def startBot():
                 e = Exchange(exchange, config_file, pair)
                 e.loadHistory(timeframe)
                 all_exchanges.append(e)
-                # e.bars.iloc[:, 3]
-                # plt.show()
+                print(e.bars)
         # aggregatedExchanges = ExchangeAggregator(all_exchanges)
                 #wt = WaveTrend()
                 #wt.calculateWaveTrend(e.bars)

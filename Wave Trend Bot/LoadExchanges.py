@@ -1,4 +1,4 @@
-from genericpath import isfile
+from genericpath import isdir, isfile
 from msilib.schema import File
 import ccxt
 import pandas as pd
@@ -27,44 +27,58 @@ class Exchange:
         self.bars.append(lastTF)
 
 
-    # This function checks if we have a file with ohlc history for said coin and updates the timeframes we have missed since last run
     def loadHistory(self, timeframe):
-        # String example: BTC-USDT-1m.csv
-        file = self.pair.replace('/', '-') + '-' + timeframe + '.csv'
-        ohlc_dir = 'OHLCV' + '/' + self.exchange + '/'
-        try:
-            # String example: OHLCV/binance/
-            # Directory for storing the bars of data from the exchange for a certain timeframe
-            os.makedirs(ohlc_dir)
+        ohlcv_file = self.pair.replace('/', '-') + '-' + timeframe + '.csv'
+        if(isfile('OHLCV/' + self.exchange + "/" + ohlcv_file)):
+            self.bars = pd.read_csv('OHLCV/' + self.exchange + "/" + ohlcv_file)
+        else:
+            if not isdir('OHLCV/' + self.exchange + '/'):
+                os.makedirs('OHLCV/' + self.exchange + '/')
+                self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, limit=None))
+                self.bars.to_csv('OHLCV/' + self.exchange + "/" + ohlcv_file)
+            else:
+                if not (isfile('OHLCV/' + self.exchange + '/' + ohlcv_file)):
+                    self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, limit=None))
+                    self.bars.to_csv('OHLCV/' + self.exchange + "/" + ohlcv_file)
 
-            # Assign the OHLCV data to self.bars
-            self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, limit=500))
-            # Print self.bars to the OHLCV directory
-            self.bars.to_csv(ohlc_dir + file, index=False, header=True)
-        except FileExistsError:
-            if(isfile(ohlc_dir + file)):
-                print('Loading History for: ' + file)
-                print('Exchange: ' + self.exchange)
-                # If the directory containing OHLCV data exists then load it
-                OHLC_history = pd.read_csv(ohlc_dir + file)
-                # Grab the last time since we have updated the file by indexing the last row's timestamp
-                last_update_time = OHLC_history.iloc[-1, 0]
+    # # This function checks if we have a file with ohlc history for said coin and updates the timeframes we have missed since last run
+    # def loadHistory(self, timeframe):
+    #     # String example: BTC-USDT-1m.csv
+    #     file = self.pair.replace('/', '-') + '-' + timeframe + '.csv'
+    #     ohlc_dir = 'OHLCV' + '/' + self.exchange + '/'
+    #     try:
+    #         # String example: OHLCV/binance/
+    #         # Directory for storing the bars of data from the exchange for a certain timeframe
+    #         os.makedirs(ohlc_dir)
 
-                # Create a new DataFrame with the new OHLCV we missed with the since parameter
-                new_OHLC = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, since=last_update_time))
-                # Drip the first row becuase it's the same as the last row in the .csv file
-                new_OHLC.drop(new_OHLC.head(1).index, inplace=True)
-                # This will append the new OHLCV data to the .csv file
-                new_OHLC.to_csv(ohlc_dir + file, mode='a', index=False, header=False)
-                # Read the data into a DataFrame
-                self.bars = pd.read_csv(ohlc_dir + file)
-            else: 
-                # Assign the OHLCV data to self.bars
-                self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, limit=500))
-                # Print self.bars to the OHLCV directory
-                self.bars.to_csv(ohlc_dir + file, index=False, header=True)
-            # Remove the first 50 bars so our calculations are
-            # self.bars.drop(self.bars.head(50).index, inplace=True)
+    #         # Assign the OHLCV data to self.bars
+    #         self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, limit=500))
+    #         # Print self.bars to the OHLCV directory
+    #         self.bars.to_csv(ohlc_dir + file, index=False, header=True)
+    #     except FileExistsError:
+    #         if(isfile(ohlc_dir + file)):
+    #             print('Loading History for: ' + file)
+    #             print('Exchange: ' + self.exchange)
+    #             # If the directory containing OHLCV data exists then load it
+    #             OHLC_history = pd.read_csv(ohlc_dir + file)
+    #             # Grab the last time since we have updated the file by indexing the last row's timestamp
+    #             last_update_time = OHLC_history.iloc[-1, 0]
+
+    #             # Create a new DataFrame with the new OHLCV we missed with the since parameter
+    #             new_OHLC = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, since=last_update_time))
+    #             # Drip the first row becuase it's the same as the last row in the .csv file
+    #             new_OHLC.drop(new_OHLC.head(1).index, inplace=True)
+    #             # This will append the new OHLCV data to the .csv file
+    #             new_OHLC.to_csv(ohlc_dir + file, mode='a', index=False, header=False)
+    #             # Read the data into a DataFrame
+    #             self.bars = pd.read_csv(ohlc_dir + file)
+    #         else: 
+    #             # Assign the OHLCV data to self.bars
+    #             self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, limit=500))
+    #             # Print self.bars to the OHLCV directory
+    #             self.bars.to_csv(ohlc_dir + file, index=False, header=True)
+    #         # Remove the first 50 bars so our calculations are
+    #         # self.bars.drop(self.bars.head(50).index, inplace=True)
 
 
     # This is called first to make a connection to the exchange from the CONFIG file
