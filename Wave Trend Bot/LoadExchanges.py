@@ -29,20 +29,38 @@ class Exchange:
     # This function checks if we have a file with ohlc history for said coin and updates the timeframes we have missed since last run
     def loadHistory(self, timeframe):
         try:
+            # String example: BTC-USDT-1m.csv
             file = self.pair.replace('/', '-') + '-' + timeframe + '.csv'
+            # String example: OHLCV/binance/
+            # Directory for storing the bars of data from the exchange for a certain timeframe
             ohlc_dir = 'OHLCV' + '/' + self.exchange + '/'
             os.makedirs(ohlc_dir)
+
+            # Assign the OHLCV data to self.bars
             self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe))
+            # Print self.bars to the OHLCV directory
             self.bars.to_csv(ohlc_dir + file, index=False, header=True)
         except FileExistsError:
             print('Loading History for: ' + file)
             print('Exchange: ' + self.exchange)
+
+            # If the directory containing OHLCV data exists then load it
             OHLC_history = pd.read_csv(ohlc_dir + file)
+            # Grab the last time since we have updated the file by indexing the last row's timestamp
             last_update_time = OHLC_history.iloc[-1, 0]
+
+            # Create a new DataFrame with the new OHLCV we missed with the since parameter
             new_OHLC = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, since=last_update_time))
+            # Drip the first row becuase it's the same as the last row in the .csv file
             new_OHLC.drop(new_OHLC.head(1).index, inplace=True)
+            # This will append the new OHLCV data to the .csv file
             new_OHLC.to_csv(ohlc_dir + file, mode='a', index=False, header=False)
+            # Read the data into a DataFrame
             self.bars = pd.read_csv(ohlc_dir + file)
+
+            
+            # Remove the first 50 bars so our calculations are
+            # self.bars.drop(self.bars.head(50).index, inplace=True)
 
 
     # This is called first to make a connection to the exchange from the CONFIG file

@@ -9,19 +9,6 @@ config_file = ConfigParser()
 config_file.read('C:\\Users\\pattt\\Desktop\\exchanges.config')
 
 
-def mainBotThread(seconds, exchange):
-    while(True):
-        try:
-
-            time.sleep(seconds)
-        except ccxt.NetworkError as e:
-            print(exchange.id, 'fetch_order_book failed due to a network error:', str(e))
-        except ccxt.ExchangeError as e:
-            print(e)
-        except Exception as e:
-            print(e)
-
-
 def startBot():
     exchanges = ['gateio', 'binance', 'ftx']
     coin = 'BTC'
@@ -33,6 +20,8 @@ def startBot():
 
     all_exchanges = []
 
+    # TO DO: Remove WaveTrend object creation from exchange/pairs loop. Append exchange to all_exchanges list.
+    # Loop through all_exchanges to plot
     if __name__ == "__main__":
         for exchange in exchanges:
             for pair in pairs:
@@ -44,8 +33,8 @@ def startBot():
 
                 print(e.bars)
 
-                #e.bars.iloc[:, 4].plot()
+                # e.bars.iloc[:, 4].plot()
                 # e.bars.iloc[:, 11].plot()
-                #plt.show()
+                # plt.show()
 
 startBot()

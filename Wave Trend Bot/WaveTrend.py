@@ -12,12 +12,8 @@ class WaveTrend:
         self.oblevel = 53
 
 
-    # This function will calculate the WaveTrend and return them
+    # This function will calculate the WaveTrend and push it to the object's self.wavetrend
     def calculateWaveTrend(self, src):
-        # Load the data from 'coin' by 'timeframe' (1000 lines 0-999)
-        # limit will show x bars of history
-        # tfSrc = pd.DataFrame(exchange.fetch_ohlcv(coin, timeframe, limit=50))
-
         tfSrc = src.copy(deep=True)
 
         tfSrc['HLC3'] = (tfSrc.iloc[:, 2] + tfSrc.iloc[:, 3] + tfSrc.iloc[:, 4]) / 3
@@ -57,7 +53,7 @@ class WaveTrend:
         self.wavetrend = tfSrc
         
 
-
+    # This function returns boolean values if x and y cross each other either up or down
     def crossing(self, x, y):
         wtCross = []
         for i in range(len(x)):
