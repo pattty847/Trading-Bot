@@ -29,7 +29,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/Pat/Documents/GitHub/School-Work/Wave Trend Bot/macvenv"
+set -gx VIRTUAL_ENV "/Users/Pat/Documents/GitHub/Trading-Bot/Wave Trend Bot/macvenv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
