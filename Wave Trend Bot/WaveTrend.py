@@ -1,7 +1,6 @@
 import ccxt
 import pandas as pd
 
-# 9, 12, 3, -53, 53, False
 class WaveTrend:
     def __init__(self):
         self.wavetrend = None

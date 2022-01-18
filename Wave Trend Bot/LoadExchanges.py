@@ -37,7 +37,7 @@ class Exchange:
             os.makedirs(ohlc_dir)
 
             # Assign the OHLCV data to self.bars
-            self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe))
+            self.bars = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, limit=500))
             # Print self.bars to the OHLCV directory
             self.bars.to_csv(ohlc_dir + file, index=False, header=True)
         except FileExistsError:
@@ -58,7 +58,7 @@ class Exchange:
             # Read the data into a DataFrame
             self.bars = pd.read_csv(ohlc_dir + file)
 
-            
+
             # Remove the first 50 bars so our calculations are
             # self.bars.drop(self.bars.head(50).index, inplace=True)
 

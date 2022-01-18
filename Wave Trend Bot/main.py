@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from configparser import ConfigParser
 from LoadExchanges import Exchange
 from WaveTrend import WaveTrend
+from ExchangeAggregator import ExchangeAggregator
 
 config_file = ConfigParser()
 config_file.read('C:\\Users\\pattt\\Desktop\\exchanges.config')
@@ -27,11 +28,12 @@ def startBot():
             for pair in pairs:
                 e = Exchange(exchange, config_file, pair)
                 e.loadHistory(timeframe)
+                all_exchanges.append(e)
+        aggregatedExchanges = ExchangeAggregator(all_exchanges)
+                #wt = WaveTrend()
+                #wt.calculateWaveTrend(e.bars)
 
-                wt = WaveTrend()
-                wt.calculateWaveTrend(e.bars)
-
-                print(e.bars)
+                #print(e.bars)
 
                 # e.bars.iloc[:, 4].plot()
                 # e.bars.iloc[:, 11].plot()
