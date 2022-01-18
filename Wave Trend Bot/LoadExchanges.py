@@ -36,12 +36,13 @@ class Exchange:
             self.bars.to_csv(ohlc_dir + file, index=False, header=True)
         except FileExistsError:
             print('Loading History for: ' + file)
-            OHLC_history = pd.read_csv(file)
+            print('Exchange: ' + self.exchange)
+            OHLC_history = pd.read_csv(ohlc_dir + file)
             last_update_time = OHLC_history.iloc[-1, 0]
             new_OHLC = pd.DataFrame(self.api.fetch_ohlcv(self.pair, timeframe, since=last_update_time))
             new_OHLC.drop(new_OHLC.head(1).index, inplace=True)
-            new_OHLC.to_csv(file, mode='a', index=False, header=False)
-            self.bars = pd.read_csv(file)
+            new_OHLC.to_csv(ohlc_dir + file, mode='a', index=False, header=False)
+            self.bars = pd.read_csv(ohlc_dir + file)
 
 
     # This is called first to make a connection to the exchange from the CONFIG file
@@ -53,7 +54,7 @@ class Exchange:
                     'apiKey': self.config[self.exchange.upper()]['apiKey'],
                     'secret': self.config[self.exchange.upper()]['secret'],
                 })
-                print(self.exchange + " - Connected")
+                print(self.exchange + " - Connected and Tradable")
             except ccxt.NetworkError as e:
                 print(e)
             except ccxt.ExchangeError as e:
@@ -62,3 +63,4 @@ class Exchange:
                 print(e)
         else: 
             self.api = exchange_class()
+            print(self.exchange + " - Connected but NOT Tradable")

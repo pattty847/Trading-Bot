@@ -18,7 +18,7 @@ class WaveTrend:
         # limit will show x bars of history
         # tfSrc = pd.DataFrame(exchange.fetch_ohlcv(coin, timeframe, limit=50))
 
-        tfSrc = pd.DataFrame(src)
+        tfSrc = src.copy(deep=True)
 
         tfSrc['HLC3'] = (tfSrc.iloc[:, 2] + tfSrc.iloc[:, 3] + tfSrc.iloc[:, 4]) / 3
 
