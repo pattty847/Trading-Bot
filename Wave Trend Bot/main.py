@@ -29,7 +29,9 @@ def startBot():
                 e = Exchange(exchange, config_file, pair)
                 e.loadHistory(timeframe)
                 all_exchanges.append(e)
-        aggregatedExchanges = ExchangeAggregator(all_exchanges)
+                # e.bars.iloc[:, 3]
+                # plt.show()
+        # aggregatedExchanges = ExchangeAggregator(all_exchanges)
                 #wt = WaveTrend()
                 #wt.calculateWaveTrend(e.bars)
 
