@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/Pat/Documents/GitHub/School-Work/Wave Trend Bot/macvenv"
+VIRTUAL_ENV="/Users/Pat/Documents/GitHub/Trading-Bot/Wave Trend Bot/macvenv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

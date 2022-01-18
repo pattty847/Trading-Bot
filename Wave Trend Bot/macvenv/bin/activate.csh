@@ -8,7 +8,7 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV "/Users/Pat/Documents/GitHub/School-Work/Wave Trend Bot/macvenv"
+setenv VIRTUAL_ENV "/Users/Pat/Documents/GitHub/Trading-Bot/Wave Trend Bot/macvenv"
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/bin:$PATH"
