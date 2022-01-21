@@ -1,5 +1,6 @@
 from asyncio import gather, get_event_loop
 import ccxt.async_support as ccxt  # noqa: E402
+import matplotlib.pyplot as plt
 
 
 async def symbol_loop(exchange, symbol):
@@ -8,8 +9,10 @@ async def symbol_loop(exchange, symbol):
         try:
             orderbook = await exchange.fetch_order_book(symbol)
             now = exchange.milliseconds()
-            print(exchange.iso8601(now), exchange.id, symbol, orderbook['asks'][0], orderbook['bids'][0])
-
+            bid = orderbook['bids'][0][0] if len (orderbook['bids']) > 0 else None
+            ask = orderbook['asks'][0][0] if len (orderbook['asks']) > 0 else None
+            spread = (ask - bid) if (bid and ask) else None
+            print (exchange.id, 'market price', { 'bid': bid, 'ask': ask, 'spread': spread })
             # --------------------> DO YOUR LOGIC HERE <------------------
 
         except Exception as e:
@@ -30,9 +33,9 @@ async def exchange_loop(asyncio_loop, exchange_id, symbols):
 
 async def main(asyncio_loop):
     exchanges = {
-        'okex': ['BTC/USDT', 'ETH/BTC', 'ETH/USDT'],
-        'binance': ['BTC/USDT', 'ETH/BTC'],
-        'bitfinex': ['BTC/USDT'],
+        'ftx': ['BTC/USDT'],
+        'binance': ['BTC/USDT'],
+        'coinbasepro': ['BTC/USDT']
     }
     loops = [exchange_loop(asyncio_loop, exchange_id, symbols) for exchange_id, symbols in exchanges.items()]
     await gather(*loops)

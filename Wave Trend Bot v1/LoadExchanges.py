@@ -15,6 +15,7 @@ class Exchange:
         self.config = config_
         self.pair = pair_
         self.timeframe = timeframe_
+        self.all_pairs = None
         self.bars = None
         self.api = None
         self.connectExchange()
@@ -78,6 +79,8 @@ class Exchange:
                     'apiKey': self.config[self.exchange.upper()]['apiKey'],
                     'secret': self.config[self.exchange.upper()]['secret'],
                 })
+                self.all_pairs = self.api.all_tickers
+                print(self.all_pairs)
                 print(self.exchange + " - Connected and Tradable")
             except ccxt.NetworkError as e:
                 print(e)

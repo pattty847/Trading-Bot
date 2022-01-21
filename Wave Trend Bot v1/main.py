@@ -13,11 +13,8 @@ config_file.read('C:\\Users\\pattt\\Desktop\\exchanges.config')
 
 
 def startBot():
-    exchanges = ['ftx', 'gateio']
-    exchanges_test = ['ftx']
-    coin = 'BTC'
-    currency = 'USDT'
-    pairs = ['BTC/USD']
+    exchanges = ['gateio']
+    pairs = ['BTC/USD', 'ETH/USD']
     timeframe = '1h'
     # 30% of account balance to be used / trade
     trade_ratio_to_balance = .3
@@ -29,6 +26,5 @@ def startBot():
                 # Exchange object used to get OHLCV data and do analysis on
                 e = Exchange(exchange, config_file, pair, timeframe)
                 
-                print(e.bars)
 
 startBot()
