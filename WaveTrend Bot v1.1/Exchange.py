@@ -16,6 +16,7 @@ class Exchange:
     webhook = 'https://discord.com/api/webhooks/935352230226321428/qAq064hZTM10FL90ITcLViTJjtpccfAeLDAwX6DXhuBaueyC50wGDi8yQgCpIFAYo_IJ'
     tradeview = 'https://www.tradingview.com/chart/KYErt3LL/'
     hti = Html2Image()
+    
 
     def dispatchWebhook(self, src):
         wh = DiscordWebhook(url=self.webhook, content=src)
@@ -27,16 +28,16 @@ class Exchange:
         if(self.api.fetch_tickers(ticker)):
             interval = self.api.parse_timeframe(timeframe)
             while(True):
-                #time.sleep(interval)
+                time.sleep(interval)
                 new_ohlcv = pd.DataFrame(self.api.fetch_ohlcv(ticker, timeframe, limit=1), index=None, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Vol'])
                 df = pd.concat([self.bars, new_ohlcv], ignore_index=True)
                 self.bars = df
                 wave = wt.calculateWaveTrend(df)
-                self.hti.screenshot(self.tradeview, save_as=f'{self.api.id}-{timeframe}.png')
-                if not (wave.iat[0, -2]):
-                    self.dispatchWebhook(f"Buy: {wave.Close.to_string()}")
+                #self.hti.screenshot(self.tradeview, save_as=f'{self.api.id}-{timeframe}.png')
+                if (wave.iat[0, -2]):
+                    self.dispatchWebhook(f"Buy: {wave.Close.to_string(index=False)}")
                 elif(wave.iat[0, -1]): 
-                    self.dispatchWebhook('Sell')
+                    self.dispatchWebhook(f"Sell: {wave.Close.to_string(index=False)}")
         else:
             print(self.api.id + ' does not have '+ ticker)
 
