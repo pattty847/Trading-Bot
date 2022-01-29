@@ -13,7 +13,7 @@ class Exchange:
 
     config = ConfigParser()
     config.read('C:\\Users\\pattt\\Desktop\\Configs\\exchanges.config')
-    webhook = 'https://discord.com/api/webhooks/935352230226321428/qAq064hZTM10FL90ITcLViTJjtpccfAeLDAwX6DXhuBaueyC50wGDi8yQgCpIFAYo_IJ'
+    webhook = 'https://discord.com/api/webhooks/935995839950757920/_tzOd179xpq6gUlPpiDnPvQ7QknsMFQ3cK5yaF48fwmiLUahCY9YF17aHncFN_tDMNNJ'
     tradeview = 'https://www.tradingview.com/chart/KYErt3LL/'
     hti = Html2Image()
     
@@ -22,6 +22,17 @@ class Exchange:
         wh = DiscordWebhook(url=self.webhook, content=src)
         response = wh.execute()
         print(response)
+
+
+    def checkForTrade(self, wave):
+        if (wave.Buy.bool()):
+            self.dispatchWebhook(f"Long: {wave.Close.to_string(index=False)}")
+        elif(wave.Sell.bool()): 
+            self.dispatchWebhook(f"Short: {wave.Close.to_string(index=False)}")
+        elif(wave.wtCrossUp.bool() & wave.wtCross.bool()): 
+            self.dispatchWebhook(f"Short TP: {wave.Close.to_string(index=False)}")
+        elif(wave.wtCrossDown.bool() & wave.wtCross.bool()): 
+            self.dispatchWebhook(f"Long TP: {wave.Close.to_string(index=False)}")
 
 
     def fetchLatestBar(self, ticker, timeframe):
@@ -33,11 +44,8 @@ class Exchange:
                 df = pd.concat([self.bars, new_ohlcv], ignore_index=True)
                 self.bars = df
                 wave = wt.calculateWaveTrend(df)
-                #self.hti.screenshot(self.tradeview, save_as=f'{self.api.id}-{timeframe}.png')
-                if (wave.iat[0, -2]):
-                    self.dispatchWebhook(f"Buy: {wave.Close.to_string(index=False)}")
-                elif(wave.iat[0, -1]): 
-                    self.dispatchWebhook(f"Sell: {wave.Close.to_string(index=False)}")
+                print(wave)
+                self.checkForTrade(wave)
         else:
             print(self.api.id + ' does not have '+ ticker)
 
@@ -96,7 +104,7 @@ class Exchange:
 
 
 def runProgram():
-    exchanges = ['binance', 'coinbasepro', 'gateio']
+    exchanges = ['coinbasepro']
     pairs = ['BTC/USDT']
     timeframe = '1m'
     rows = 100
