@@ -1,5 +1,5 @@
 from Exchange import Exchange
-from WaveTrend import WaveTrend
+from Strategies import WaveTrend
 
 import time
 

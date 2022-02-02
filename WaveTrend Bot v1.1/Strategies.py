@@ -1,16 +1,17 @@
 import ccxt
 import pandas as pd
+import pandas_ta as ta
 
-
-wavetrend = None
-chlen = 9
-avg = 12
-malen = 3
-oslevel = -53
-oblevel = 53
 
 # This function will calculate the WaveTrend and push it to the object's wavetrend
 def calculateWaveTrend(src):
+    chlen = 9
+    avg = 12
+    malen = 3
+    oslevel = -53
+    oblevel = 53
+
+
     tfSrc = src.copy(deep=True)
 
     tfSrc['HLC3'] = (tfSrc.iloc[:, 2] + tfSrc.iloc[:, 3] + tfSrc.iloc[:, 4]) / 3
@@ -48,6 +49,37 @@ def calculateWaveTrend(src):
     tfSrc.drop(tfSrc.head(50).index, inplace=True)
     # return the waveTrend DataFrame or return the last minute
     return (tfSrc[-1:])
+
+"""
+Lelec(bars, len) =>
+    bindex = int(na)
+    bindex := nz(bindex[1], 0)
+    sindex = int(na)
+    sindex := nz(sindex[1], 0)
+    return = 0
+    bindex := close > close[4] ? bindex + 1 : bindex
+    sindex := close < close[4] ? sindex + 1 : sindex
+    if bindex > bars and close < open and high >= highest(high, len)
+        bindex := 0
+        return := -1
+        return
+    else
+        if sindex > bars and close > open and low <= lowest(low, len)
+            sindex := 0
+            return := 1
+            return
+"""
+
+
+def exhuastion(src):
+    tfSrc = src.copy(deep=True)
+    length = 40
+    bars = 10
+    bindex = tfSrc.iloc[:, 2].shift(1)
+    sindex = tfSrc.iloc[:, 2].shift(1)
+    long = False
+    bindex = tfSrc.iloc[:, 2] > tfSrc.iloc[:, 2].shift(4) and 
+
     
 
 # This function returns boolean values if x and y cross each other either up or down

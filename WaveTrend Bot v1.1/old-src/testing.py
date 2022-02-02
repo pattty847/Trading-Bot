@@ -2,7 +2,7 @@
 
 import os
 import sys
-from WaveTrend import WaveTrend
+from Strategies import WaveTrend
 import pandas as pd
 from asyncio import get_event_loop, gather
 
