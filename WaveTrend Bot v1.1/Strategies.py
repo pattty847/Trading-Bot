@@ -78,7 +78,7 @@ def exhuastion(src):
     bindex = tfSrc.iloc[:, 2].shift(1)
     sindex = tfSrc.iloc[:, 2].shift(1)
     long = False
-    bindex = tfSrc.iloc[:, 2] > tfSrc.iloc[:, 2].shift(4) and 
+    # bindex = tfSrc.iloc[:, 2] > tfSrc.iloc[:, 2].shift(4) and 
 
     
 
