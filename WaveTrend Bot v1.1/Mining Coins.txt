@@ -2,4 +2,13 @@
 
 Most Profitable GPU Mining Coins
 
-Tips: ASIC resistant coins are cryptocurrencies with ASIC-resistant algorithms. 
+Tips: ASIC resistant coins are cryptocurrencies with ASIC-resistant algorithms. However, the 
+process of making a cryptocurrency ASIC-resistant is a defensive game, which requires continued 
+development and modifications. This is due to the reason that ASIC designers and manufacturers 
+are constantly producing new models of ASIC miners, and sometimes, the newer models are able to 
+bypass the ASIC-resistance of certain cryptocurrencies.
+
+1. Vertcoin (Asic resistant): 
+2. ETH - 2.0? What's that?
+3. ZCash (ZEC)
+4. Grin (GRIN)

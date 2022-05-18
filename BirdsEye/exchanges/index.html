@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="plotly.min.js"></script>
+    <script src="Binance.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <h1 id="vol-title">Market Delta: </h1>
+        <h1 id="market-delta"></h1>
+    </div>
+    <div>
+        <h1 id="price-title">Limit Delta: </h1>
+        <h1 id="limit-delta"></h1>
+    </div>
+
+    <div id="tester" style="width:800;height:600;"></div>
+    <div id="price-chart" style="width:800;height:600;"></div>
+
+    <script>
+        const webSocket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@aggTrade');
+
+        webSocket.onopen = function(event) {
+            console.log('WebSocket [OPEN]')
+        };
+
+        webSocket.onmessage = function(event) {
+            //console.log(event.data);
+            message = JSON.parse(event.data)
+            setMarketDelta(message)
+            setLimitDelta(message)
+        };
+
+        webSocket.onclose = function(event) {
+            if (event.wasClean) {
+                console.log('WebSocket [CLOSED]')
+            } else {
+                console.log('WebSocket [DIED]')
+            }
+        };
+
+        var market_buy = 0
+        var market_sell = 0
+        var market_delta = 0
+        var bid_size = 0
+
+
+        function setMarketDelta(message) {
+            //console.log(message)
+            if (message['m'] == false) {
+                market_buy = Number(market_buy + (message['p'] * message['q']))
+            } else {
+                if (message['m'] == true) {
+                    market_sell = Number(market_sell + (message['p'] * message['q']))
+                }
+            }
+            market_delta = (market_buy - market_sell).toFixed(2)
+            document.getElementById('market-delta').innerHTML = market_delta
+        };
+
+        var limit_buy = 0
+        var limit_sell = 0
+        var limit_delta = 0
+        var price = 0
+
+        function setLimitDelta(message) {
+            if (message['m'] == false) {
+                price = message['q']
+            } else {
+                if (message['m'] == true) {
+                    price = -message['q']
+                }
+            }
+
+        }
+
+        function getMarketDelta() {
+            return market_delta
+        }
+
+        function getLimitDelta() {
+            return price
+        }
+
+        function getBidSize() {
+            return bid_size
+        }
+
+        var refresh_int = 200
+        var slide_int = 100
+
+
+        Plotly.newPlot('tester', [{
+            y: [getMarketDelta()],
+            type: 'line'
+        }]);
+
+        var count1 = 0
+        setInterval(function() {
+            Plotly.extendTraces('tester', {
+                y: [
+                    [getMarketDelta()]
+                ]
+            }, [0]);
+            count1++;
+            if (count1 > slide_int) {
+                Plotly.relayout('tester', {
+                    xaxis: {
+                        range: [count1 - slide_int, count1]
+                    }
+                });
+            }
+        }, refresh_int)
+
+
+        // Plotly.newPlot(html-element, data, [layout], [config])
+        Plotly.newPlot('price-chart', [{
+            y: [getLimitDelta()],
+            type: 'line'
+        }]);
+
+        var count2 = 0
+        setInterval(function() {
+            Plotly.extendTraces('price-chart', {
+                y: [
+                    [getLimitDelta()]
+                ]
+            }, [0])
+            count2++;
+            if (count2 > slide_int) {
+                Plotly.relayout('price-chart', {
+                    xaxis: {
+                        range: [count2 - slide_int, count2]
+                    }
+                });
+            }
+        }, refresh_int)
+    </script>
+</body>
+
+</html>

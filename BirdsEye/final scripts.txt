@@ -1,0 +1,53 @@
+# 1. Install the Active Directory Domain Services Feature
+Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+# 2. Install an Active Directory Forest
+$password = ConvertTo-SecureString "Spring2018" -AsPlainText -Force
+Install-ADDSForest -DomainName "bit.corn" -InstallDNS -SafeModeAdministratorPassword $password
+Restart-Computer -Force
+# 3. Create Organizational Units
+New-ADOrganizationalUnit -Name = IT -Path "DC=bit,DC=corn" -ProtectedFromAccidentalDeletion $False
+New-ADOrganizationalUnit -Name = HR -Path "DC=bit,DC=corn" -ProtectedFromAccidentalDeletion $False
+New-ADUser -Name "ChewDavid1" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=IT,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid2" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=IT,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid3" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=IT,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid4" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=IT,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid5" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=IT,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid6" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=HR,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid7" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=HR,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid8" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=HR,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid9" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=HR,DC=bit,DC=corn"
+New-ADUser -Name "ChewDavid10" -Accountpassword (Read-Host -AsSecureString "Spring2018") -Enabled $true -ChangePasswordAtLogon $false -Path "OU=HR,DC=bit,DC=corn"
+$gpo = Get-Gpo -All | Where-Object DisplayName -match "Default Domain Controllers"
+Import-GPO -Path "C:\PATH TO FILE" -BackupGpoName "Default Domain Controllers Policy" -TargetGuid $GPO.id
+# new-gpo -name CMDBan | new-gplink -name CMDBan -target "ou=IT,DC=bit,DC=corn" | new-gplink -name CMDBan -target "ou=IT,DC=bit,DC=corn" | 
+# set-gppermissions -permissionlevel gpoedit -targetname "IT" -targettype group
+
+###################################################################################################################################################################################
+
+$userList = Import-Csv -Path 'file.csv' 
+
+foreach ($User in $UserList) 
+{
+     $Attributes = @{
+
+        Enabled = $true
+        ChangePasswordAtLogon = $false
+        # Path = "OU=Futurama Users,DC=pdqlabs,DC=org"
+        Path = "OU=$User.OU,DC=bit,DC=corn"
+        #PATH = "OU=TOP OU,OU=NESTED OU,OU=ANOTHER NESTED OU,DC=bit,DC=corn"  < - example of nexted OUs
+
+        Name = "$($User.First) $($User.Last)"
+        UserPrincipalName = "$($User.First).$($User.Last)@cornonthe.cob"
+        SamAccountName = "$($User.First).$($User.Last)"
+
+        GivenName = $User.First
+        Surname = $User.Last
+
+        Company = $User.Company
+        Department = $User.Department
+        Title = $User.Title
+        AccountPassword = "PASSWORD" | ConvertTo-SecureString -AsPlainText -Force
+     }
+}
+
+New-ADUser @Attributes
