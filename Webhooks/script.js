@@ -1,32 +1,67 @@
-const webSocket = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@aggTrade');
+const FUTURES_BTCUSDT_BNBUSDT_AGGTRADE = 'wss://fstream.binance.com/stream?streams=bnbusdt@aggTrade/btcusdt@aggTrade'
+const SPOT_ENDPOINT = 'wss://stream.binance.com:9443'
+const FUTURES_ENDPOINT = 'wss://fstream.binance.com'
+const COMBINED_STREAMS = '/stream?streams='
+const SINGLE_STREAM = '/ws/'
+
+// After createStream() is called, this is where the STREAM variables are stored for future use
+let STREAM = ''
+let STREAM_TYPE = ''
+
+// Streams
+const AGGTRADE = '@aggTrade'
+const TRADE = '@trade'
+const KLINE = '@kline_'
+const MINI = '@miniTicker'
+
+// Here we assign a new WebSocket to the returned variable from createStream(endpoint, single/multi stream, ticker, stream)
+const SOCKET = new WebSocket(createStream(SPOT_ENDPOINT, true, 'btcusdt', AGGTRADE));
+
+// Rate at which the chart will add a new data point from the socket stream
 const refresh_int = 200
 
-// This will store the websocket data each message we receive
+// This will store the SOCKET data each message we receive
 var data = 0
 
 // This is where we will store the delta once calculated
 var delta = 0
 
-webSocket.onopen = function(event) {
-    console.log('WebSocket [OPEN]')
+SOCKET.onopen = function(event) {
+    console.log('SOCKET [OPEN]')
 }
 
 
-webSocket.onmessage = function(event) {
+SOCKET.onmessage = function(event) {
     //console.log(event.data);
     var message = JSON.parse(event.data)
-    data = message
+    if (STREAM_TYPE == 'SINGLE') {
+        data = message
+    } else {
+        data = message['data']
+    }
     setDelta()
     setOrderSize(data['p'] * data['q'])
 }
 
 
-webSocket.onclose = function(event) {
+SOCKET.onclose = function(event) {
     if (event.wasClean) {
-        console.log('WebSocket [CLOSED]')
+        console.log('SOCKET [CLOSED]')
     } else {
-        console.log('WebSocket [DIED]')
+        console.log('SOCKET [DIED]')
     }
+}
+
+
+function createStream(endpoint, single, ticker, stream) {
+    if (single) {
+        STREAM = endpoint + SINGLE_STREAM + ticker + stream
+        STREAM_TYPE = 'SINGLE'
+    } else {
+        STREAM = endpoint + COMBINED_STREAMS + ticker + stream
+        STREAM_TYPE = 'MULTI'
+    }
+    return STREAM
 }
 
 
@@ -154,6 +189,9 @@ function getDelta() {
 }
 
 
+//=======================================
+
+
 var order = {
     'tiny': 0,
     'small': 0,
@@ -182,6 +220,8 @@ function setOrderSize(size) {
 }
 
 
+//=======================================
+
 
 var buy = 0
 var sell = 0
@@ -195,6 +235,8 @@ function setDelta() {
     delta = (buy - sell)
 }
 
+
+//=======================================
 
 drawPriceChart()
 drawChart('delta', getTime, getDelta, 'line', 200, 1, 'Cummulative Delta', 'Time', 'Price')
