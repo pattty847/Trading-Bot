@@ -7,6 +7,7 @@ const SINGLE_STREAM = '/ws/'
 // After createStream() is called, this is where the STREAM variables are stored for future use
 let STREAM = ''
 let STREAM_TYPE = ''
+let STREAM_END = ''
 
 // Streams
 const AGGTRADE = '@aggTrade'
@@ -15,7 +16,7 @@ const KLINE = '@kline_'
 const MINI = '@miniTicker'
 
 // Here we assign a new WebSocket to the returned variable from createStream(endpoint, single/multi stream, ticker, stream)
-const SOCKET = new WebSocket(createStream(SPOT_ENDPOINT, true, 'btcusdt', AGGTRADE));
+const SOCKET = new WebSocket(createStream(FUTURES_ENDPOINT, true, 'btcusdt', AGGTRADE));
 
 // Rate at which the chart will add a new data point from the socket stream
 const refresh_int = 200
@@ -34,6 +35,8 @@ SOCKET.onopen = function(event) {
 SOCKET.onmessage = function(event) {
     //console.log(event.data);
     var message = JSON.parse(event.data)
+
+    // This determines the stream feed type, which is needed to parse the right data
     if (STREAM_TYPE == 'SINGLE') {
         data = message
     } else {
@@ -61,6 +64,7 @@ function createStream(endpoint, single, ticker, stream) {
         STREAM = endpoint + COMBINED_STREAMS + ticker + stream
         STREAM_TYPE = 'MULTI'
     }
+    STREAM_END = endpoint == SPOT_ENDPOINT ? 'SPOT' : endpoint == FUTURES_ENDPOINT ? 'FUTURES' : ''
     return STREAM
 }
 
@@ -189,6 +193,17 @@ function getDelta() {
 }
 
 
+function getOrders() {
+    let size = 0
+    if (data['m'] == false) {
+        size = data['q']
+    } else {
+        size = -data['q']
+    }
+    return size
+}
+
+
 //=======================================
 
 
@@ -202,20 +217,24 @@ var order = {
 
 
 function setOrderSize(size) {
-    if (size > 0 && size < 10000) {
-        order['tiny']++;
-    }
-    if (size > 10000 && size < 50000) {
-        order['small']++;
-    }
-    if (size > 50000 && size < 100000) {
-        order['normal']++;
-    }
-    if (size > 100000 && size < 250000) {
-        order['large']++;
-    }
-    if (size > 250000 && size < 1000000) {
-        order['chad']++
+    if (STREAM_END == 'SPOT') {
+        if (size > 0 && size < 10000) {
+            order['tiny']++;
+        }
+        if (size > 10000 && size < 50000) {
+            order['small']++;
+        }
+        if (size > 50000 && size < 100000) {
+            order['normal']++;
+        }
+        if (size > 100000 && size < 250000) {
+            order['large']++;
+        }
+        if (size > 250000 && size < 1000000) {
+            order['chad']++
+        }
+    } else {
+        // Larger order sizes for futures
     }
 }
 
@@ -239,4 +258,5 @@ function setDelta() {
 //=======================================
 
 drawPriceChart()
-drawChart('delta', getTime, getDelta, 'line', 200, 1, 'Cummulative Delta', 'Time', 'Price')
+drawChart('delta', getTime, getDelta, 'line', 200, 1, 'Cummulative Delta', 'Time', 'Delta')
+drawChart('orders', getTime, getOrders, 'line', 200, 1, 'Order Sizes', 'Time', 'Size')
