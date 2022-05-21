@@ -19,7 +19,7 @@ const MINI = '@miniTicker'
 const SOCKET = new WebSocket(createStream(FUTURES_ENDPOINT, true, 'btcusdt', AGGTRADE));
 
 // Rate at which the chart will add a new data point from the socket stream
-const refresh_int = 200
+const refresh_int = 1
 
 // This will store the SOCKET data each message we receive
 var data = 0
@@ -258,5 +258,5 @@ function setDelta() {
 //=======================================
 
 drawPriceChart()
-drawChart('delta', getTime, getDelta, 'line', 200, 1, 'Cummulative Delta', 'Time', 'Delta')
-drawChart('orders', getTime, getOrders, 'line', 200, 1, 'Order Sizes', 'Time', 'Size')
+drawChart('delta', getTime, getDelta, 'line', refresh_int, 1, 'Cummulative Delta', 'Time', 'Delta')
+drawChart('orders', getTime, getOrders, 'line', refresh_int, 1, 'Order Sizes', 'Time', 'Size')
