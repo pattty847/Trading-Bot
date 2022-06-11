@@ -15,8 +15,10 @@ const TRADE = '@trade'
 const KLINE = '@kline_'
 const MINI = '@miniTicker'
 
+const PAIR = 'btcusdt'
+
 // Here we assign a new WebSocket to the returned variable from createStream(endpoint, single/multi stream, ticker, stream)
-const SOCKET = new WebSocket(createStream(FUTURES_ENDPOINT, true, 'btcusdt', AGGTRADE));
+const SOCKET = new WebSocket(createStream(SPOT_ENDPOINT, true, PAIR, AGGTRADE));
 
 // Rate at which the chart will add a new data point from the socket stream
 const refresh_int = 1
@@ -36,12 +38,15 @@ SOCKET.onmessage = function(event) {
     //console.log(event.data);
     var message = JSON.parse(event.data)
 
-    // This determines the stream feed type, which is needed to parse the right data
+    // This determines the stream feed type (multiple streams verse single)
     if (STREAM_TYPE == 'SINGLE') {
         data = message
     } else {
         data = message['data']
     }
+
+    // After message is recieved here is where we call on functions to do stuff to the data
+
     setDelta()
     setOrderSize(data['p'] * data['q'])
 }
@@ -64,7 +69,10 @@ function createStream(endpoint, single, ticker, stream) {
         STREAM = endpoint + COMBINED_STREAMS + ticker + stream
         STREAM_TYPE = 'MULTI'
     }
+
+    // Assign the stream endpoint if we're using SPOT or FUTURES, due to differences in order sizes
     STREAM_END = endpoint == SPOT_ENDPOINT ? 'SPOT' : endpoint == FUTURES_ENDPOINT ? 'FUTURES' : ''
+    console.log(STREAM_END)
     return STREAM
 }
 
@@ -192,6 +200,10 @@ function getDelta() {
     return delta
 }
 
+function getOrderSize() {
+    return order
+}
+
 
 function getOrders() {
     let size = 0
@@ -246,6 +258,9 @@ var buy = 0
 var sell = 0
 
 function setDelta() {
+
+    // BUY = the PRICE * ORDER_SIZE
+
     if (data['m'] == false) {
         buy = buy + (data['p'] * data['q'])
     } else {
@@ -259,4 +274,4 @@ function setDelta() {
 
 drawPriceChart()
 drawChart('delta', getTime, getDelta, 'line', refresh_int, 1, 'Cummulative Delta', 'Time', 'Delta')
-drawChart('orders', getTime, getOrders, 'line', refresh_int, 1, 'Order Sizes', 'Time', 'Size')
+drawChart('orders', getTime, getOrders, 'line', refresh_int, 1, 'Order History', 'Time', 'Size')

@@ -23,6 +23,12 @@ class Exchange {
         this.ONMESSAGE = this.WEBSOCKET.onmessage
         this.ONERROR = this.WEBSOCKET.onerror
         this.ONCLOSE = this.WEBSOCKET.onclose
-
     }
+}
+
+
+interface Exchange {
+    ENDPOINT: string, 
+    SINGLE: boolean, 
+    STREAM: string,
 }
