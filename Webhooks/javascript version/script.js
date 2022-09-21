@@ -76,7 +76,7 @@ function createStream(endpoint, single, ticker, stream) {
     return STREAM
 }
 
-
+// drawChart('delta', getTime, getDelta, 'line', refresh_int, 1, 'Cummulative Delta', 'Time', 'Delta')
 function drawChart(div, x, y, type, refresh_rate, chart_length, title, xaxis, yaxis) {
     var layout = {
         title: {
