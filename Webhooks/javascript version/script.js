@@ -21,7 +21,7 @@ const PAIR = 'btcusdt'
 const SOCKET = new WebSocket(createStream(SPOT_ENDPOINT, true, PAIR, AGGTRADE));
 
 // Rate at which the chart will add a new data point from the socket stream
-const refresh_int = 1
+const refresh_int = 50
 
 // This will store the SOCKET data each message we receive
 var data = 0
@@ -44,11 +44,7 @@ SOCKET.onmessage = function(event) {
     } else {
         data = message['data']
     }
-
-    // After message is recieved here is where we call on functions to do stuff to the data
-
     setDelta()
-    setOrderSize(data['p'] * data['q'])
 }
 
 
@@ -76,7 +72,7 @@ function createStream(endpoint, single, ticker, stream) {
     return STREAM
 }
 
-// drawChart('delta', getTime, getDelta, 'line', refresh_int, 1, 'Cummulative Delta', 'Time', 'Delta')
+// EXAMPLE: drawChart('delta', getTime, getDelta, 'line', refresh_int, 1, 'Cummulative Delta', 'Time', 'Delta')
 function drawChart(div, x, y, type, refresh_rate, chart_length, title, xaxis, yaxis) {
     var layout = {
         title: {
@@ -117,7 +113,6 @@ function drawChart(div, x, y, type, refresh_rate, chart_length, title, xaxis, ya
         type: type
     }], layout);
 
-    var count = 0
     setInterval(function() {
         Plotly.extendTraces(div, {
             x: [
@@ -128,61 +123,6 @@ function drawChart(div, x, y, type, refresh_rate, chart_length, title, xaxis, ya
             ]
         }, [0])
     }, refresh_rate)
-}
-
-
-function drawPriceChart() {
-    var layout = {
-        title: {
-            text: 'Price',
-            font: {
-                family: 'Courier New, monospace',
-                size: 24
-            },
-            xref: 'paper',
-            x: 0.05,
-        },
-        xaxis: {
-            title: {
-                text: 'Time',
-                font: {
-                    family: 'Courier New, monospace',
-                    size: 18,
-                    color: '#7f7f7f'
-                }
-            },
-        },
-        yaxis: {
-            title: {
-                text: 'Price',
-                font: {
-                    family: 'Courier New, monospace',
-                    size: 18,
-                    color: '#7f7f7f'
-                }
-            }
-        }
-    };
-
-
-    // Plotly.newPlot(html-element, data, [layout], [config])
-    Plotly.react('anything', [{
-        y: [getPrice()],
-        x: [getTime()],
-        type: 'line'
-    }], layout);
-
-
-    setInterval(function() {
-        Plotly.extendTraces('anything', {
-            y: [
-                [getPrice()]
-            ],
-            x: [
-                [getTime()]
-            ]
-        }, [0])
-    }, refresh_int)
 }
 
 
@@ -216,51 +156,10 @@ function getOrders() {
 }
 
 
-//=======================================
-
-
-var order = {
-    'tiny': 0,
-    'small': 0,
-    'normal': 0,
-    'large': 0,
-    'chad': 0
-}
-
-
-function setOrderSize(size) {
-    if (STREAM_END == 'SPOT') {
-        if (size > 0 && size < 10000) {
-            order['tiny']++;
-        }
-        if (size > 10000 && size < 50000) {
-            order['small']++;
-        }
-        if (size > 50000 && size < 100000) {
-            order['normal']++;
-        }
-        if (size > 100000 && size < 250000) {
-            order['large']++;
-        }
-        if (size > 250000 && size < 1000000) {
-            order['chad']++
-        }
-    } else {
-        // Larger order sizes for futures
-    }
-}
-
-
-//=======================================
-
-
 var buy = 0
 var sell = 0
 
 function setDelta() {
-
-    // BUY = the PRICE * ORDER_SIZE
-
     if (data['m'] == false) {
         buy = buy + (data['p'] * data['q'])
     } else {
@@ -272,6 +171,6 @@ function setDelta() {
 
 //=======================================
 
-drawPriceChart()
-drawChart('delta', getTime, getDelta, 'line', refresh_int, 1, 'Cummulative Delta', 'Time', 'Delta')
-drawChart('orders', getTime, getOrders, 'line', refresh_int, 1, 'Order History', 'Time', 'Size')
+drawChart('price-chart', getTime, getPrice, 'line', refresh_int, 1, 'Price Chart', 'Time', 'Price')
+drawChart('delta-chart', getTime, getDelta, 'line', refresh_int, 1, 'Cummulative Delta', 'Time', 'Delta')
+drawChart('orders-chart', getTime, getOrders, 'bar', refresh_int, 1, 'Order History', 'Time', 'Size')
