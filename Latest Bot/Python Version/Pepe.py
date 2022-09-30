@@ -6,8 +6,7 @@ class Pepe():
     def __init__(self) -> None:
         pass
 
-    def plot_ohlcv(self, csv=None, subset=1000):
-        df = pd.read_csv('binance.csv')
+    def plot_ohlcv_matplotlib(self, df, subset=1000):
         df = df.tail(subset)
         df.columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
         df['Time'] = pd.to_datetime(df['Time'], unit='ms')
@@ -35,8 +34,7 @@ class Pepe():
         plt.show()
 
 
-    def plot_ohlcv_plotly(self):
-        df = pd.read_csv('binance_1d_2020-01-01.csv')
+    def plot_ohlcv_plotly(self, df):
         df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
         df['Date'] = pd.to_datetime(df['Date'], unit='ms')
         fig = go.Figure(data=[go.Candlestick(x=df['Date'],
@@ -44,8 +42,23 @@ class Pepe():
                 high=df['High'],
                 low=df['Low'],
                 close=df['Close'])])
+
+        fig.update_layout(
+            title='Bitcoin',
+            yaxis_title='Price',
+            xaxis_title='Date',
+            shapes = [dict(
+                x0='2022-09-01', x1='2022-09-01', y0=0, y1=1, xref='x', yref='paper',
+                line_width=2)],
+            annotations=[dict(
+                x='2022-09-01', y=0.05, xref='x', yref='paper',
+                showarrow=False, xanchor='left', text='Test bar')]
+        )
         fig.show()
 
 pepe = Pepe()
 
-pepe.plot_ohlcv_plotly()
+df = pd.read_csv('binance_1d_2020-01-01.csv')
+pepe.plot_ohlcv_plotly(df)
+
+# pepe.plot_ohlcv_matplotlib(df)
