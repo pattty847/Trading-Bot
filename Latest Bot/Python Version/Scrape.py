@@ -89,12 +89,13 @@ class ScrapeOrders():
                             since = last_trade['timestamp']
                             previous_trade_id = last_trade['id']
                             for trade in trades:
-                                csv_writer.writerow({
-                                    'timestamp': trade['timestamp'],
-                                    'size': trade['amount'],
-                                    'price': trade['price'],
-                                    'side': trade['side'],
-                                })
+                                if trade['amount'] > 20:
+                                    csv_writer.writerow({
+                                        'timestamp': trade['timestamp'],
+                                        'size': trade['amount'],
+                                        'price': trade['price'],
+                                        'side': trade['side'],
+                                    })
                         else:
                             since += one_hour
                     else:
@@ -104,9 +105,9 @@ class ScrapeOrders():
                     exchange.sleep(60000)
 
 
-since_when_ = '2022-09-29T00:00:00Z'
+since_when_ = '2022-09-30T00:00:00Z'
 exchange = 'binance'
-timeframe_ = '1d'
+timeframe_ = '1m'
 symbol_ = 'BTC/USDT'
 
 scrape_candles = ScrapeOHLCV()

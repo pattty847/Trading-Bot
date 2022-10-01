@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 
 class Pepe():
     def __init__(self) -> None:
         pass
 
-    def plot_ohlcv_matplotlib(self, df, subset=1000):
-        df = df.tail(subset)
+    def plot_ohlcv_matplotlib(self, df, orders):
         df.columns = ['Time', 'Open', 'High', 'Low', 'Close', 'Volume']
         df['Time'] = pd.to_datetime(df['Time'], unit='ms')
         #create figure
@@ -34,31 +34,49 @@ class Pepe():
         plt.show()
 
 
-    def plot_ohlcv_plotly(self, df):
+    def plot_orders(self, orders):
+        area = orders['price_mean'] * orders['size_sum'] * 0.02
+        time = pd.to_datetime(orders['timestamp'], unit='ms')
+        plt.scatter(time, orders['price_mean'] * orders['size_sum'], s=area, c='red', alpha=0.5)
+        plt.plot(time, orders['price_mean'])
+        plt.show()
+
+
+    def plot_ohlcv_plotly(self, df, orders):
         df.columns = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
         df['Date'] = pd.to_datetime(df['Date'], unit='ms')
-        fig = go.Figure(data=[go.Candlestick(x=df['Date'],
-                open=df['Open'],
-                high=df['High'],
-                low=df['Low'],
-                close=df['Close'])])
+        fig = go.Figure(
+            data=[go.Candlestick(
+                    x=df['Date'],
+                    open=df['Open'],
+                    high=df['High'],
+                    low=df['Low'],
+                    close=df['Close'])])
 
-        fig.update_layout(
-            title='Bitcoin',
-            yaxis_title='Price',
-            xaxis_title='Date',
-            shapes = [dict(
-                x0='2022-09-01', x1='2022-09-01', y0=0, y1=1, xref='x', yref='paper',
-                line_width=2)],
-            annotations=[dict(
-                x='2022-09-01', y=0.05, xref='x', yref='paper',
-                showarrow=False, xanchor='left', text='Test bar')]
-        )
+        date = pd.to_datetime(orders['timestamp'], unit='ms')
+
+        size = orders['size'] * 0.5
+
+        fig.add_trace(go.Scatter(x=date, y=orders['price'], mode="markers", marker = dict(
+                # color = orders['color'],
+                size=size
+            )
+        ))
+
         fig.show()
+
 
 pepe = Pepe()
 
-df = pd.read_csv('binance_1d_2020-01-01.csv')
-pepe.plot_ohlcv_plotly(df)
+df = pd.read_csv('btcusdt-orders.csv')
+candles = pd.read_csv('btcusdt-candles.csv')
 
-# pepe.plot_ohlcv_matplotlib(df)
+grouped_multiple = df.groupby(['timestamp']).agg({'size': ['sum'], 'price': ['mean'], 'side':['first']})
+grouped_multiple.columns = ['size', 'price', 'side']
+orders = grouped_multiple.reset_index()
+
+orders = orders.loc[orders['size'] > 20]
+
+# pepe.plot_orders(grouped_multiple)
+pepe.plot_ohlcv_plotly(candles, orders)
+# pepe.plot_ohlcv_matplotlib(df, grouped_multiple)
